@@ -1,3 +1,3 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-* Libraries/zlib/* inguist-vendored
+Libraries/zlib/* inguist-vendored
