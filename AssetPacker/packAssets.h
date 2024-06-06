@@ -21,7 +21,7 @@ struct FileName
 struct Asset {
     char* fileName;
     char* fileType;
-	char* data;
+	unsigned char* data;
     size_t size;
 };
 

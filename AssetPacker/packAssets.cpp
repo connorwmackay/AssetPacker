@@ -54,7 +54,7 @@ void packAssets(const char* directory, const char* fileName, int& success) {
     {
         std::ifstream assetFile(file.full, std::ios::binary | std::ios::in);
 
-        std::string assetFileData((std::istreambuf_iterator<char>(assetFile)),
+        std::vector<unsigned char> assetFileData((std::istreambuf_iterator<char>(assetFile)),
             std::istreambuf_iterator<char>());
 
         size_t fileNameSize = file.relative.size() * sizeof(char) + 1;
@@ -63,7 +63,7 @@ void packAssets(const char* directory, const char* fileName, int& success) {
         packFile.write((const char*)&fileNameSize, sizeof(size_t)); // File Name Size Header
         packFile.write((const char*)&fileDataSize, sizeof(size_t)); // File Data Size Header
         packFile.write(file.relative.c_str(), file.relative.size() + 1); // File Name
-        packFile.write(assetFileData.c_str(), assetFileData.size() + 1); // File Data
+        packFile.write((char*)assetFileData.data(), assetFileData.size() + 1); // File Data
 
         assetFile.close();
     }
@@ -107,8 +107,8 @@ std::unordered_map<std::string, Asset> unpackAssets(const char* fileName, int& s
         }
         assetFileName[(fileNameSize / sizeof(char)) - 1] = '\0';
 
-        char* fileData = (char*)malloc(fileDataSize + 1);
-        if (gzread(packFile, fileData, fileDataSize / sizeof(char)) == -1)
+        unsigned char* fileData = (unsigned char*)malloc(fileDataSize + 1);
+        if (gzread(packFile, fileData, fileDataSize / sizeof(unsigned char)) == -1)
         {
             std::cerr << "Error: GZRead could not decompress file data\n";
             success = PACK_ASSETS_ERROR;
@@ -132,7 +132,7 @@ std::unordered_map<std::string, Asset> unpackAssets(const char* fileName, int& s
         }
         fileType[0] = '\0';
         if (startIndOfFileType != std::string::npos) {
-            std::string fileTypeStr = fileNameStr.substr(startIndOfFileType + 1);
+            std::string fileTypeStr = fileNameStr.substr(startIndOfFileType);
             fileType = (char*)realloc(fileType, fileTypeStr.size() * sizeof(char) + 1);
             if (fileType == nullptr)
             {
